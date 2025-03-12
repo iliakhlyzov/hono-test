@@ -56,6 +56,32 @@ app.post('/purchase', async (c) => {
   }
 })
 
+app.post('/seed', async (c) => {
+  try {
+    await databaseService.query(
+        `INSERT INTO users (name, balance) VALUES ('Test User', 50.00) ON CONFLICT DO NOTHING;`
+    );
+
+    await databaseService.query(
+        `INSERT INTO products (name, price) VALUES
+        ('10 Year Birthday Sticker Capsule', 0.94),
+        ('1st Lieutenant Farlow | SWAT', 8.10),
+        ('2020 RMR Challengers', 0.20),
+        ('2020 RMR Contenders', 0.33),
+        ('2020 RMR Legends', 0.18),
+        ('2021 Community Sticker Capsule', 0.94)
+          ON CONFLICT DO NOTHING;`
+    );
+
+    const users = await databaseService.query("SELECT * FROM users;");
+    const products = await databaseService.query("SELECT * FROM products;");
+
+    return c.json({ success: true, message: "Database seeded successfully", users, products });
+  } catch (error) {
+    return c.json({ error: "Seeding failed" }, 500);
+  }
+});
+
 const gracefulShutdown = async () => {
   console.log("Shutting down server...");
   await databaseService.close();
