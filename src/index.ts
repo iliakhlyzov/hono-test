@@ -5,6 +5,8 @@ import {cacheService} from "./services/cacheService";
 import {SkinportGetItemsResponse} from "./types/externalApi/skinportService";
 import {skinportService} from "./externalApi/skinportService";
 import {databaseService} from "./database";
+import {validateSchema} from "./validation/validateMiddleware";
+import {z} from "zod";
 
 const app = new Hono()
 
@@ -25,12 +27,11 @@ app.get('/skinport', async (c) => {
   return c.json(data);
 })
 
-app.post('/purchase', async (c) => {
-  const { userId, productId } = await c.req.json();
-
-  if (!userId || !productId) {
-    return c.json({ error: "Invalid input" }, 400);
-  }
+app.post('/purchase', validateSchema(z.object({
+    userId: z.string().uuid(),
+    productId: z.string().uuid(),
+})), async (c) => {
+    const { userId, productId } = await c.req.json();
 
   try {
     const result = await databaseService.query(
