@@ -2,12 +2,12 @@ import { Hono } from 'hono'
 import { etag } from 'hono/etag'
 import { logger } from 'hono/logger'
 import { cacheService } from './services/cacheService'
-import { SkinportGetItemsResponse } from './types/externalApi/skinportService'
+import { type SkinportGetItemsResponse } from './types/externalApi/skinportService'
 import { skinportService } from './externalApi/skinportService'
 import { databaseService } from './database'
 import { validateSchema } from './validation/validateMiddleware'
 import { z } from 'zod'
-import { User } from './types/database/User'
+import { type User } from './types/database/User'
 
 const app = new Hono()
 
