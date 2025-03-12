@@ -50,7 +50,7 @@ app.post('/purchase', async (c) => {
       return c.json({ error: "Insufficient balance or invalid user/product" }, 400);
     }
 
-    return c.json({ success: true, message: "Purchase completed" });
+    return c.json({ success: true, message: "Purchase completed", data: { userId, productId }});
   } catch (error) {
     return c.json({ error: "Transaction failed" }, 500);
   }
