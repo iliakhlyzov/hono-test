@@ -7,6 +7,7 @@ import {skinportService} from "./externalApi/skinportService";
 import {databaseService} from "./database";
 import {validateSchema} from "./validation/validateMiddleware";
 import {z} from "zod";
+import {User} from "./types/database/User";
 
 const app = new Hono()
 
@@ -51,7 +52,11 @@ app.post('/purchase', validateSchema(z.object({
       return c.json({ error: "Insufficient balance or invalid user/product" }, 400);
     }
 
-    return c.json({ success: true, message: "Purchase completed", data: { userId, productId }});
+      const updatedUser = await databaseService.query<User>(
+          "SELECT balance FROM users WHERE id = $1", [userId]
+      );
+
+    return c.json({ success: true, message: "Purchase completed", data: { userId, productId,  balance: updatedUser[0].balance }});
   } catch (error) {
     return c.json({ error: "Transaction failed" }, 500);
   }
