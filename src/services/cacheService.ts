@@ -54,7 +54,7 @@ class CacheService {
     key: string,
     fetchFunction: () => Promise<T>,
     ttl?: number,
-  ): Promise<T> {
+  ): Promise<T | null> {
     try {
       const cachedData = await this.get<T>(key)
       if (cachedData !== null) {
@@ -67,9 +67,8 @@ class CacheService {
       return freshData
     } catch (error) {
       console.error('Redis getOrSet error:', error)
+      return null
     }
-
-    return await fetchFunction()
   }
 
   async flush(): Promise<void> {
