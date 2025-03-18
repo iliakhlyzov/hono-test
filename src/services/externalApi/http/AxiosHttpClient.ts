@@ -1,7 +1,8 @@
-import { ExtendedError } from '../../errors/ExtendedError'
+import { ExtendedError } from '../../../errors/ExtendedError'
 import type { StatusCode } from 'hono/dist/types/utils/http-status'
-import type { HttpClient } from '../../types/externalApi/HttpClient'
-import { AxiosError } from 'axios'
+import type { HttpClient } from '../../../types/externalApi/HttpClient'
+import axios, { AxiosError } from 'axios'
+import type { AxiosInstance } from 'axios'
 
 export class AxiosHttpClient implements HttpClient {
   private readonly axiosInstance: AxiosInstance
