@@ -1,17 +1,29 @@
-import { ZodSchema } from 'zod'
-import { Context, Next } from 'hono'
+import type { ZodSchema } from 'zod'
+import type { Context, Next } from 'hono'
 
-export const validateSchema = (schema: ZodSchema) => {
+export const validateSchema = (schemas: {
+  body?: ZodSchema
+  query?: ZodSchema
+}) => {
   return async (c: Context, next: Next) => {
-    const body = await c.req.json()
-    const result = schema.safeParse(body)
+    const errors: Record<string, unknown> = {}
 
-    if (!result.success) {
-      return c.json(
-        { error: 'Invalid request format', details: result.error.format() },
-        400,
-      )
+    if (schemas.body) {
+      const body = await c.req.json().catch(() => null)
+      const result = schemas.body.safeParse(body)
+
+      if (!result.success) errors.body = result.error.format()
     }
+
+    if (schemas.query) {
+      const query = c.req.query()
+      const result = schemas.query.safeParse(query)
+
+      if (!result.success) errors.query = result.error.format()
+    }
+
+    if (Object.keys(errors).length)
+      return c.json({ error: 'Invalid request', details: errors }, 400)
 
     await next()
   }
