@@ -1,4 +1,4 @@
-import type { Currency } from './currency'
+import type { Currency } from '../types/externalApi/currency'
 
 const SKINPORT_KEY: string = 'skinport'
 

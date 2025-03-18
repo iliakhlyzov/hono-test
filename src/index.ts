@@ -3,15 +3,16 @@ import { etag } from 'hono/etag'
 import { logger } from 'hono/logger'
 import { cacheService } from './services/cacheService'
 import type { MarketItem } from './types/externalApi/skinportService'
-import { skinportService } from './externalApi/skinportService'
+import { skinportService } from './services/externalApi/skinportService'
 import { databaseService } from './database'
-import { validateSchema } from './validation/validateMiddleware'
+import { validateSchema } from './middlewares/validateMiddleware'
 import { z } from 'zod'
 import type { User } from './types/database/User'
 import { getSkinportItemsKey } from './const/cacheKeys'
-import { Currency } from './const/currency'
+import { Currency } from './types/externalApi/currency'
 import { DEFAULT_TTL } from './const/cacheService'
 import { ExtendedError } from './errors/ExtendedError'
+import { getItemsQuerySchema } from './validation/schemas/skinportService/getItemsQuerySchema'
 
 const app = new Hono()
 
@@ -39,33 +40,37 @@ interface SkinportQuery {
 }
 const DEFAULT_APP_ID = 730
 
-app.get('/skinport', async (c) => {
-  const query = c.req.query as SkinportQuery
-  const {
-    appId = DEFAULT_APP_ID,
-    currency = Currency.EUR,
-    tradable = 0,
-  } = query
+app.get(
+  '/skinport',
+  validateSchema({ query: getItemsQuerySchema }),
+  async (c) => {
+    const query = c.req.query as SkinportQuery
+    const {
+      appId = DEFAULT_APP_ID,
+      currency = Currency.EUR,
+      tradable = 0,
+    } = query
 
-  const data = await cacheService.getOrSet<MarketItem[]>(
-    getSkinportItemsKey(appId, currency, tradable),
-    async () => {
-      return skinportService.getItemsV1(appId, currency, tradable)
-    },
-    DEFAULT_TTL,
-  )
+    const data = await cacheService.getOrSet<MarketItem[]>(
+      getSkinportItemsKey(appId, currency, tradable),
+      async () => {
+        return skinportService.getItemsV1(appId, currency, tradable)
+      },
+      DEFAULT_TTL,
+    )
 
-  return c.json(data)
-})
+    return c.json(data)
+  },
+)
 
 app.post(
   '/purchase',
-  validateSchema(
-    z.object({
+  validateSchema({
+    body: z.object({
       userId: z.string().uuid(),
       productId: z.string().uuid(),
     }),
-  ),
+  }),
   async (c) => {
     const { userId, productId } = await c.req.json()
 

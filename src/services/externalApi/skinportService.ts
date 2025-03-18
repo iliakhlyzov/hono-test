@@ -2,8 +2,8 @@ import type {
   MarketItem,
   SkinportGetItemsResponse,
 } from '../../types/externalApi/skinportService'
-import {AxiosHttpClient} from "./http/AxiosHttpClient";
-import type {Currency} from "../../types/externalApi/currency";
+import { AxiosHttpClient } from './http/AxiosHttpClient'
+import type { Currency } from '../../types/externalApi/currency'
 
 const DEFAULT_API_V1 = 'https://api.skinport.com/v1'
 
