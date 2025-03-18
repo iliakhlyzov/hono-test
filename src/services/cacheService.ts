@@ -1,14 +1,12 @@
 import Redis from 'ioredis'
+import { redisConfig } from '../config/redisConfig'
+import type { CacheClient } from '../types/services/CacheClient'
 
-class CacheService {
+class CacheService implements CacheClient {
   private client: Redis
 
   constructor() {
-    this.client = new Redis({
-      host: process.env.REDIS_HOST || '127.0.0.1',
-      port: Number(process.env.REDIS_PORT) || 6379,
-      password: process.env.REDIS_PASSWORD || undefined,
-    })
+    this.client = new Redis(redisConfig)
 
     this.client.on('ready', () => {
       console.log('Redis is ready!')
@@ -22,6 +20,7 @@ class CacheService {
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     try {
       const data = JSON.stringify(value)
+
       if (ttl) {
         await this.client.set(key, data, 'EX', ttl)
       } else {
@@ -35,6 +34,7 @@ class CacheService {
   async get<T>(key: string): Promise<T | null> {
     try {
       const data = await this.client.get(key)
+
       return data ? JSON.parse(data) : null
     } catch (error) {
       console.error('Redis get error:', error)
@@ -57,12 +57,15 @@ class CacheService {
   ): Promise<T | null> {
     try {
       const cachedData = await this.get<T>(key)
+
       if (cachedData !== null) {
         return cachedData
       }
 
       const freshData = await fetchFunction()
+
       await this.set(key, freshData, ttl)
+
       return freshData
     } catch (error) {
       console.error('Redis getOrSet error:', error)

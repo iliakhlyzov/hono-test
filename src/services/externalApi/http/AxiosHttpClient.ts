@@ -1,6 +1,6 @@
 import { ExtendedError } from '../../../errors/ExtendedError'
 import type { StatusCode } from 'hono/dist/types/utils/http-status'
-import type { HttpClient } from '../../../types/externalApi/HttpClient'
+import type { HttpClient } from '../../../types/services/HttpClient'
 import axios, { AxiosError } from 'axios'
 import type { AxiosInstance } from 'axios'
 
