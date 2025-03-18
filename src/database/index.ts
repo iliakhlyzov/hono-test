@@ -13,7 +13,10 @@ class DatabaseService {
     })
   }
 
-  async query<T>(query: string, params?: (number | string | boolean)[]): Promise<T[]> {
+  async query<T>(
+    query: string,
+    params?: (number | string | boolean)[],
+  ): Promise<T[]> {
     try {
       return await this.sql.unsafe(query, params)
     } catch (error) {

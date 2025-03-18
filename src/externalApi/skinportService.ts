@@ -1,28 +1,34 @@
-import { SkinportGetItemsResponse } from '../types/externalApi/skinportService'
+import type {
+  Currency,
+  MarketItem,
+  SkinportGetItemsResponse,
+} from '../types/externalApi/skinportService'
+import {AxiosHttpClient} from "./http/AxiosHttpClient";
 
-class SkinportService {
+const DEFAULT_API_V1 = 'https://api.skinport.com/v1'
+
+class SkinportService extends AxiosHttpClient {
+  constructor() {
+    super(DEFAULT_API_V1)
+  }
+
   async getItemsV1(
-    appId: number = 730,
-    currency: string = 'EUR',
-    tradable: number = 0,
-  ): Promise<SkinportGetItemsResponse> {
-    const params = new URLSearchParams({
-      app_id: String(appId),
-      currency,
-      tradable: String(tradable),
-    })
-
-    const response = await fetch(
-      `https://api.skinport.com/v1/items?${params}`,
+    appId: number,
+    currency: Currency,
+    tradable: 0 | 1,
+  ): Promise<MarketItem[]> {
+    const data = await this.get<SkinportGetItemsResponse>(
+      '/items',
+      { app_id: appId, currency, tradable },
       {
-        method: 'GET',
-        headers: {
-          'Accept-Encoding': 'br',
-        },
+        'Accept-Encoding': 'br',
       },
     )
 
-    return await response.json()
+    return data.map((item) => ({
+      suggested_price: item.suggested_price,
+      min_price: item.min_price,
+    }))
   }
 }
 

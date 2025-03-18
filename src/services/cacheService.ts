@@ -58,7 +58,6 @@ class CacheService {
     try {
       const cachedData = await this.get<T>(key)
       if (cachedData !== null) {
-        console.log(`Found cached data by '${key}'`)
         return cachedData
       }
 
@@ -67,7 +66,7 @@ class CacheService {
       return freshData
     } catch (error) {
       console.error('Redis getOrSet error:', error)
-      return null
+      throw error
     }
   }
 

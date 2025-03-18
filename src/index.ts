@@ -2,14 +2,29 @@ import { Hono } from 'hono'
 import { etag } from 'hono/etag'
 import { logger } from 'hono/logger'
 import { cacheService } from './services/cacheService'
-import type { SkinportGetItemsResponse } from './types/externalApi/skinportService'
+import type { MarketItem } from './types/externalApi/skinportService'
 import { skinportService } from './externalApi/skinportService'
 import { databaseService } from './database'
 import { validateSchema } from './validation/validateMiddleware'
 import { z } from 'zod'
 import type { User } from './types/database/User'
+import { getSkinportItemsKey } from './const/cacheKeys'
+import { Currency } from './const/currency'
+import { DEFAULT_TTL } from './const/cacheService'
+import { ExtendedError } from './errors/ExtendedError'
 
 const app = new Hono()
+
+app.onError((err: ExtendedError | Error, c) => {
+  if (err instanceof ExtendedError) {
+    c.status(err.status)
+    return c.json({
+      message: err.message,
+    })
+  }
+
+  return c.json(err)
+})
 
 app.use(etag(), logger())
 
@@ -17,16 +32,27 @@ app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
-app.get('/skinport', async (c) => {
-  const cacheKey = 'skinport:data'
-  const ttl = 300
+interface SkinportQuery {
+  appId?: number
+  currency?: Currency
+  tradable?: 0 | 1
+}
+const DEFAULT_APP_ID = 730
 
-  const data = await cacheService.getOrSet<SkinportGetItemsResponse>(
-    cacheKey,
+app.get('/skinport', async (c) => {
+  const query = c.req.query as SkinportQuery
+  const {
+    appId = DEFAULT_APP_ID,
+    currency = Currency.EUR,
+    tradable = 0,
+  } = query
+
+  const data = await cacheService.getOrSet<MarketItem[]>(
+    getSkinportItemsKey(appId, currency, tradable),
     async () => {
-      return skinportService.getItemsV1()
+      return skinportService.getItemsV1(appId, currency, tradable)
     },
-    ttl,
+    DEFAULT_TTL,
   )
 
   return c.json(data)
