@@ -1,3 +1,5 @@
+import type {ConvertKeysToCamel} from "../../common";
+
 interface SkinportItem {
   market_hash_name: string
   currency: string
@@ -14,4 +16,4 @@ interface SkinportItem {
 }
 
 export type SkinportGetItemsResponse = SkinportItem[]
-export type MarketItem = Pick<SkinportItem, 'suggested_price' | 'min_price'>
+export type MarketItem = ConvertKeysToCamel<Pick<SkinportItem, 'market_hash_name' | 'suggested_price' | 'min_price'>>

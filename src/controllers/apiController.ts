@@ -66,7 +66,7 @@ apiController.post(
         [userId, productId],
       )
     } catch (error) {
-      return c.json({ error: 'Transaction failed' }, 500)
+      return c.json({ error: 'Transaction failed' }, StatusCodes.INTERNAL_SERVER_ERROR)
     }
 
     if (!queryResult.length) {
@@ -111,7 +111,7 @@ apiController.post('/seed', async (c) => {
       products,
     })
   } catch (error) {
-    return c.json({ error: 'Seeding failed' }, 500)
+    return c.json({ error: 'Seeding failed' }, StatusCodes.INTERNAL_SERVER_ERROR)
   }
 })
 

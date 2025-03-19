@@ -3,27 +3,13 @@ import type { StatusCode } from 'hono/dist/types/utils/http-status'
 import type { HttpClient } from '../../../types/services/HttpClient'
 import axios, { AxiosError } from 'axios'
 import type { AxiosInstance } from 'axios'
+import {StatusCodes} from "http-status-codes";
 
 export class AxiosHttpClient implements HttpClient {
   private readonly axiosInstance: AxiosInstance
 
   constructor(private readonly baseUrl: string) {
     this.axiosInstance = axios.create({ baseURL: baseUrl })
-  }
-
-  private buildUrl(
-    endpoint: string,
-    params?: Record<string, string | number | boolean>,
-  ): string {
-    const url = new URL(`${this.baseUrl}${endpoint}`)
-
-    if (params) {
-      for (const [key, value] of Object.entries(params)) {
-        url.searchParams.append(key, value.toString())
-      }
-    }
-
-    return url.toString()
   }
 
   async request<T>(
@@ -51,7 +37,7 @@ export class AxiosHttpClient implements HttpClient {
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         throw new ExtendedError(
-          (error.response?.status as StatusCode) || 500,
+          (error.response?.status as StatusCode) || StatusCodes.INTERNAL_SERVER_ERROR,
           error.response?.data || 'Unknown error',
         )
       }
