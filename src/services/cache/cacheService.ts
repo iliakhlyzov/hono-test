@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
-import { redisConfig } from '../config/redisConfig'
-import type { CacheClient } from '../types/services/CacheClient'
+import { redisConfig } from '../../config/redisConfig'
+import type { CacheClient } from '../../types/services/CacheClient'
 
 class CacheService implements CacheClient {
   private client: Redis

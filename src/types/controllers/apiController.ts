@@ -6,4 +6,7 @@ export interface GetSkinportRequestQuery {
   tradable?: 0 | 1
 }
 
-export interface PostPurchaseRequestBody {}
+export interface PostPurchaseRequestBody {
+  userId: string
+  productId: string
+}
