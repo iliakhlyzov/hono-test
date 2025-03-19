@@ -1,6 +1,6 @@
 import postgres from 'postgres'
 import { dbConfig } from '../config/dbConfig'
-import {Logger} from "../utils/logger";
+import { Logger } from '../utils/logger'
 
 class DatabaseService {
   private sql
@@ -26,7 +26,7 @@ class DatabaseService {
       await this.sql.end()
       Logger.info('Database connection closed.')
     } catch (error) {
-      Logger.error('Error closing database connection:', {error})
+      Logger.error('Error closing database connection:', { error })
     }
   }
 }

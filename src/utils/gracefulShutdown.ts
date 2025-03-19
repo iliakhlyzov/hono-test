@@ -1,5 +1,5 @@
 import { databaseService } from '../database'
-import {Logger} from "./logger";
+import { Logger } from './logger'
 
 export const gracefulShutdown = async () => {
   Logger.info('Shutting down server...')

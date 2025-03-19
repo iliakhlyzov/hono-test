@@ -8,7 +8,6 @@ import { logger } from 'hono/logger'
 
 const app = new Hono()
 ;(async () => {
-
   app.onError((err: ExtendedError | Error, c) => {
     if (err instanceof ExtendedError) {
       c.status(err.status)
