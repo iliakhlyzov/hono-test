@@ -3,7 +3,7 @@ import type { StatusCode } from 'hono/dist/types/utils/http-status'
 import type { HttpClient } from '../../../types/services/HttpClient'
 import axios, { AxiosError } from 'axios'
 import type { AxiosInstance } from 'axios'
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from 'http-status-codes'
 
 export class AxiosHttpClient implements HttpClient {
   private readonly axiosInstance: AxiosInstance
@@ -37,7 +37,8 @@ export class AxiosHttpClient implements HttpClient {
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         throw new ExtendedError(
-          (error.response?.status as StatusCode) || StatusCodes.INTERNAL_SERVER_ERROR,
+          (error.response?.status as StatusCode) ||
+            StatusCodes.INTERNAL_SERVER_ERROR,
           error.response?.data || 'Unknown error',
         )
       }

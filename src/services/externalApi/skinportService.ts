@@ -28,7 +28,7 @@ class SkinportService extends AxiosHttpClient {
     return data.map((item) => ({
       marketHashName: item.market_hash_name,
       suggestedPrice: item.suggested_price,
-      minPrice: item.min_price
+      minPrice: item.min_price,
     }))
   }
 }

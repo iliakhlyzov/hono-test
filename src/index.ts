@@ -4,7 +4,7 @@ import { logger } from 'hono/logger'
 import { ExtendedError } from './errors/ExtendedError'
 import apiController from './controllers/apiController'
 import { gracefulShutdown } from './utils/gracefulShutdown'
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from 'http-status-codes'
 
 const app = new Hono()
 
@@ -16,7 +16,10 @@ app.onError((err: ExtendedError | Error, c) => {
     })
   }
 
-  return c.json({ error: 'Internal server error' }, StatusCodes.INTERNAL_SERVER_ERROR)
+  return c.json(
+    { error: 'Internal server error' },
+    StatusCodes.INTERNAL_SERVER_ERROR,
+  )
 })
 
 app.use(etag(), logger())

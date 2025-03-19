@@ -1,6 +1,6 @@
 import type { ZodSchema } from 'zod'
 import type { Context, Next } from 'hono'
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from 'http-status-codes'
 
 export const validateSchema = (schemas: {
   body?: ZodSchema
@@ -24,7 +24,10 @@ export const validateSchema = (schemas: {
     }
 
     if (Object.keys(errors).length)
-      return c.json({ error: 'Invalid request', details: errors }, StatusCodes.BAD_REQUEST,)
+      return c.json(
+        { error: 'Invalid request', details: errors },
+        StatusCodes.BAD_REQUEST,
+      )
 
     await next()
   }

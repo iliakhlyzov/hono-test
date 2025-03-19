@@ -13,7 +13,8 @@ import type {
   GetSkinportRequestQuery,
   PostPurchaseRequestBody,
 } from '../types/controllers/apiController'
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from 'http-status-codes'
+import { apiService } from '../services/apiService'
 
 const apiController = new Hono()
 
@@ -24,18 +25,11 @@ apiController.get(
   validateSchema({ query: apiControllerGetItemsQuerySchema }),
   async (c) => {
     const query = c.req.query as GetSkinportRequestQuery
-    const {
-      appId = DEFAULT_APP_ID,
-      currency = Currency.EUR,
-      tradable = 0,
-    } = query
 
-    const data = await cacheService.getOrSet<MarketItem[]>(
-      getSkinportItemsKey(appId, currency, tradable),
-      async () => {
-        return skinportService.getItemsV1(appId, currency, tradable)
-      },
-      DEFAULT_TTL,
+    const data = await apiService.getSkinportItems(
+      query.appId,
+      query.currency,
+      query.tradable,
     )
 
     return c.json(data)
@@ -44,75 +38,40 @@ apiController.get(
 
 apiController.post(
   '/purchase',
-  validateSchema({
-    body: apiControllerPostPuchaseRequestBodySchema,
-  }),
+  validateSchema({ body: apiControllerPostPuchaseRequestBodySchema }),
   async (c) => {
-    const { userId, productId } =
-      (await c.req.json()) as PostPurchaseRequestBody
-    let queryResult: { id: string; balance: number }[]
+    const purchaseData = (await c.req.json()) as PostPurchaseRequestBody
+    const result = await apiService.processPurchase(purchaseData)
 
-    try {
-      queryResult = await databaseService.query(
-        `WITH updated AS (
-          UPDATE users
-          SET balance = balance - (SELECT price FROM products WHERE id = $2)
-          WHERE id = $1 AND balance >= (SELECT price FROM products WHERE id = $2)
-              RETURNING balance
-            )
-          INSERT INTO purchases (user_id, product_id)
-          SELECT $1, $2 FROM updated
-         RETURNING *;`,
-        [userId, productId],
-      )
-    } catch (error) {
-      return c.json({ error: 'Transaction failed' }, StatusCodes.INTERNAL_SERVER_ERROR)
-    }
-
-    if (!queryResult.length) {
-      return c.json(
-        { error: 'Insufficient balance or invalid user/product' },
-        StatusCodes.BAD_REQUEST,
-      )
+    if (!result.success) {
+      return c.json({ error: result.error }, StatusCodes.BAD_REQUEST)
     }
 
     return c.json({
       success: true,
       message: 'Purchase completed',
-      data: { userId, productId, balance: queryResult[0].balance },
+      data: {
+        userId: purchaseData.userId,
+        productId: purchaseData.productId,
+        balance: result.balance,
+      },
     })
   },
 )
 
 apiController.post('/seed', async (c) => {
-  try {
-    await databaseService.query(
-      `INSERT INTO users (name, balance) VALUES ('Test User', 50.00) ON CONFLICT DO NOTHING;`,
-    )
+  const result = await apiService.seedDatabase()
 
-    await databaseService.query(
-      `INSERT INTO products (name, price) VALUES
-        ('10 Year Birthday Sticker Capsule', 0.94),
-        ('1st Lieutenant Farlow | SWAT', 8.10),
-        ('2020 RMR Challengers', 0.20),
-        ('2020 RMR Contenders', 0.33),
-        ('2020 RMR Legends', 0.18),
-        ('2021 Community Sticker Capsule', 0.94)
-                ON CONFLICT DO NOTHING;`,
-    )
-
-    const users = await databaseService.query('SELECT * FROM users;')
-    const products = await databaseService.query('SELECT * FROM products;')
-
-    return c.json({
-      success: true,
-      message: 'Database seeded successfully',
-      users,
-      products,
-    })
-  } catch (error) {
-    return c.json({ error: 'Seeding failed' }, StatusCodes.INTERNAL_SERVER_ERROR)
+  if (!result.success) {
+    return c.json({ error: result.error }, StatusCodes.INTERNAL_SERVER_ERROR)
   }
+
+  return c.json({
+    success: true,
+    message: 'Database seeded successfully',
+    users: result.users,
+    products: result.products,
+  })
 })
 
 export default apiController

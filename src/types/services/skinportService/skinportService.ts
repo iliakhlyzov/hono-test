@@ -1,4 +1,4 @@
-import type {ConvertKeysToCamel} from "../../common";
+import type { ConvertKeysToCamel } from '../../common'
 
 interface SkinportItem {
   market_hash_name: string
@@ -16,4 +16,6 @@ interface SkinportItem {
 }
 
 export type SkinportGetItemsResponse = SkinportItem[]
-export type MarketItem = ConvertKeysToCamel<Pick<SkinportItem, 'market_hash_name' | 'suggested_price' | 'min_price'>>
+export type MarketItem = ConvertKeysToCamel<
+  Pick<SkinportItem, 'market_hash_name' | 'suggested_price' | 'min_price'>
+>

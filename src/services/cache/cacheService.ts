@@ -54,7 +54,7 @@ class CacheService implements CacheClient {
     key: string,
     fetchFunction: () => Promise<T>,
     ttl?: number,
-  ): Promise<T | null> {
+  ): Promise<T> {
     try {
       const cachedData = await this.get<T>(key)
 

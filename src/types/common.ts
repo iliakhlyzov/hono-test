@@ -1,7 +1,8 @@
-export type CamelCase<S extends string> = S extends `${infer First}_${infer Rest}`
+export type CamelCase<S extends string> =
+  S extends `${infer First}_${infer Rest}`
     ? `${First}${Capitalize<CamelCase<Rest>>}`
-    : S;
+    : S
 
 export type ConvertKeysToCamel<T> = {
-    [K in keyof T as CamelCase<K & string>]: T[K];
-};
+  [K in keyof T as CamelCase<K & string>]: T[K]
+}
