@@ -1,5 +1,6 @@
 import postgres from 'postgres'
 import { dbConfig } from '../config/dbConfig'
+import {Logger} from "../utils/logger";
 
 class DatabaseService {
   private sql
@@ -15,7 +16,7 @@ class DatabaseService {
     try {
       return await this.sql.unsafe(query, params)
     } catch (error) {
-      console.error('Postgres query error:', error)
+      Logger.error('Postgres query error:', { error })
       throw error
     }
   }
@@ -23,9 +24,9 @@ class DatabaseService {
   async close(): Promise<void> {
     try {
       await this.sql.end()
-      console.log('Database connection closed.')
+      Logger.info('Database connection closed.')
     } catch (error) {
-      console.error('Error closing database connection:', error)
+      Logger.error('Error closing database connection:', {error})
     }
   }
 }

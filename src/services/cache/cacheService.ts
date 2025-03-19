@@ -1,6 +1,7 @@
 import Redis from 'ioredis'
 import { redisConfig } from '../../config/redisConfig'
 import type { CacheClient } from '../../types/services/CacheClient'
+import {Logger} from "../../utils/logger";
 
 class CacheService implements CacheClient {
   private client: Redis
@@ -9,11 +10,11 @@ class CacheService implements CacheClient {
     this.client = new Redis(redisConfig)
 
     this.client.on('ready', () => {
-      console.log('Redis is ready!')
+      Logger.info('Redis is ready!')
     })
 
     this.client.on('error', (err) => {
-      console.error('Redis error:', err)
+      Logger.error('Redis error:', { error: err})
     })
   }
 
@@ -27,7 +28,7 @@ class CacheService implements CacheClient {
         await this.client.set(key, data)
       }
     } catch (error) {
-      console.error('Redis set error:', error)
+      Logger.error('Redis set error:', {error})
     }
   }
 
@@ -37,7 +38,7 @@ class CacheService implements CacheClient {
 
       return data ? JSON.parse(data) : null
     } catch (error) {
-      console.error('Redis get error:', error)
+      Logger.error('Redis get error:', {error})
       return null
     }
   }
@@ -46,7 +47,7 @@ class CacheService implements CacheClient {
     try {
       await this.client.del(key)
     } catch (error) {
-      console.error('Redis delete error:', error)
+      Logger.error('Redis delete error:', {error})
     }
   }
 
@@ -68,7 +69,7 @@ class CacheService implements CacheClient {
 
       return freshData
     } catch (error) {
-      console.error('Redis getOrSet error:', error)
+      Logger.error('Redis getOrSet error:', {error})
       throw error
     }
   }
@@ -77,7 +78,7 @@ class CacheService implements CacheClient {
     try {
       await this.client.flushall()
     } catch (error) {
-      console.error('Redis flush error:', error)
+      Logger.error('Redis flush error:', {error})
     }
   }
 }

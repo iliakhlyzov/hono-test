@@ -1,13 +1,6 @@
 import { Hono } from 'hono'
 import { validateSchema } from '../middlewares/validateMiddleware'
 import { apiControllerGetItemsQuerySchema } from '../validation/schemas/apiController/apiControllerGetItemsQuerySchema'
-import { databaseService } from '../database'
-import { cacheService } from '../services/cache/cacheService'
-import { skinportService } from '../services/externalApi/skinportService'
-import { getSkinportItemsKey } from '../const/cacheKeys'
-import { DEFAULT_APP_ID, DEFAULT_TTL } from '../const/cacheService'
-import { Currency } from '../types/services/skinportService/currency'
-import type { MarketItem } from '../types/services/skinportService/skinportService'
 import { apiControllerPostPuchaseRequestBodySchema } from '../validation/schemas/apiController/apiControllerPostPuchaseRequestBodySchema'
 import type {
   GetSkinportRequestQuery,

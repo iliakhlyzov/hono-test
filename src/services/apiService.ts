@@ -49,8 +49,6 @@ export class ApiService {
         }
       }
 
-      console.log(queryResult[0])
-
       return { success: true, balance: queryResult[0].balance }
     } catch (error) {
       return { success: false, error: 'Transaction failed' }
