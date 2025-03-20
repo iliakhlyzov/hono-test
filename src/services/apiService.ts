@@ -12,7 +12,7 @@ export class ApiService {
     appId: number = DEFAULT_APP_ID,
     currency: Currency = Currency.EUR,
     tradable: 0 | 1 = 0,
-  ): Promise<MarketItem[]> {
+  ): Promise<MarketItem[] | null> {
     return cacheService.getOrSet(
       getSkinportItemsKey(appId, currency, tradable),
       async () => skinportService.getItemsV1(appId, currency, tradable),
