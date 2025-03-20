@@ -49,11 +49,9 @@ class DatabaseService {
       return
     }
 
-    console.log('here')
     this.reconnectAttempts++
     Logger.warn(`Reconnect attempt #${this.reconnectAttempts}...`)
 
-    await Bun.sleep(5000)
     this.connect()
   }
 
@@ -71,7 +69,7 @@ class DatabaseService {
       )
 
       return (await Promise.race([
-        this.sql!.unsafe(query, params),
+        this.sql?.unsafe(query, params),
         timeoutPromise,
       ])) as T[]
     } catch (error) {
